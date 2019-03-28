@@ -19,13 +19,10 @@ class UserAgent:
 
     def take_action(self):
         self.action = numpy.argmax(self.updatePreference())
-        print(self.preference)
-        print(self.updatePreference())
 
     def update_preference(self):
         new_preference = [0.0] * (len(self.preference))
         influence = self.calculate_influence()
-
         for i in range(len(self.preference)):
             new_preference[i] = self.preference[i] + influence[i]
         new_preference[0] += self.reward
