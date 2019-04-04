@@ -3,14 +3,15 @@ import random, datetime
 
 
 class FileIO:
-
-    def __init__(self):
+    def __init__(self, name):
         self.userList = {}
         self.num = 2
+        self.add_net = '../data/' + name + '_network.txt'
+        self.add_user = '../data/' + name + '_user.txt'
 
     def import_data(self):
         try:
-            file = open('../data/Wiki-Vote.txt', 'r')
+            file = open(self.add_net, 'r')
             for line in file:
                 arr = line.strip('\n').split()
                 u1 = UserAgent.UserAgent(int(arr[0]))
@@ -38,8 +39,8 @@ class FileIO:
         l = list(self.userList.values())
         l.sort(key=lambda x: int(x.id), reverse=False)
         try:
-            file = open('../data/UserPreference.txt', 'w')
-            file1 = open('../data/UserNeighbors.txt', 'w')
+            file = open(self.add_user, 'w')
+            file1 = open(self.add_net, 'w')
             for user in l:
                 line = str(user.id) + " "
                 for pre in user.preference:
@@ -56,16 +57,16 @@ class FileIO:
 
     def import_user_data(self):
         try:
-            file = open('../data/UserPreference.txt', 'r')
+            file = open(self.add_user, 'r')
             for line in file:
                 arr = line.strip('\n').split()
                 ID = arr[0]
                 arr.pop(0)
                 user = UserAgent.UserAgent(int(ID))
-                user.preference = arr
+                user.assign_preference(list(map(lambda x: float(x), arr)))
                 self.userList[user] = user
             file.close()
-            file = open('../data/UserNeighbors.txt', 'r')
+            file = open(self.add_net, 'r')
             for line in file:
                 arr = line.strip('\n').split()
                 u1 = UserAgent.UserAgent(int(arr[0]))
