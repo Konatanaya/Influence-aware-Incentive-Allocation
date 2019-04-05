@@ -6,11 +6,11 @@ GIAC = []
 budget = 80
 
 
-def draw_plot(array):
+def draw_plot(array, time):
     mark = ['-o', '-s', '-v', '-D', '-^', '-s']
     name = ['DBP-UCB', 'DGIA-IPE', 'DGIA', 'ϵ-first', 'Uniform']
     size = 18
-    x = np.linspace(0, 20, 21)
+    x = np.linspace(0, time, time+1)
     plt.figure(figsize=(10, 8))
     for index in range(len(array)):
         y = array[index]

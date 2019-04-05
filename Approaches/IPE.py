@@ -1,10 +1,10 @@
 from Approach import Approach
 from DataProcessing.FileIO import FileIO
+from UserAgent import UserAgent
 import Plot.plot as plot
 import random, datetime, math
+import numpy as np
 from threading import Thread
-
-
 from multiprocessing import Pool
 import os, time, random
 
@@ -17,9 +17,12 @@ class IPE(Approach):
         self.active_users = {}
         self.pre_active_users = {}
         self.status_last_time = 0.0
+        self.matrix = self.init_matrix()
+
+    def init_matrix(self):
+        return np.zeros((len(self.userList), len(self.userList)))
 
     def simulate(self):
-
         for t in range(1, self.time + 1):
             print("round " + str(t), end=":")
             start = time.time()
@@ -41,6 +44,7 @@ class IPE(Approach):
                         # thr.start()
                         # if user.id == len(self.userList) - 1:
                         # thr.join()
+                        1
 
                     self.active_users[user] = user.action
                 self.update_probability(user)
@@ -54,19 +58,16 @@ class IPE(Approach):
             self.status_last_time = s / len(self.userList)
             self.status.append(self.status_last_time)
             end = time.time()
-            print(str(end-start)+"s")
+            print(str(end - start) + "s")
 
     def calculate_influence(self):
-
         list = {}
         a = []
+        sum = self.matrix.sum(axis=1)
         for user in self.userList:
-            sum = 0.0
-            for u in user.est_out_neighbors:
-                sum += user.est_out_neighbors[u]
-            user.idegree = sum / len(self.userList)
+            s = sum[user.id]
+            user.idegree = s / len(self.userList)
             user.total = user.idegree + user.probability
-            # print(user.idegree)
             list[user] = user.total
         a = sorted(list.items(), key=lambda x: x[1], reverse=True)
         for x in a:
@@ -74,23 +75,34 @@ class IPE(Approach):
         self.userList = list
 
     def estimate_influence(self, user, time):
-        for u in self.pre_active_users:
-            if u not in user.est_in_neighbors:
-                user.est_in_neighbors[u] = 0.0
-                u.est_out_neighbors[user] = 0.0
-        for u in user.est_in_neighbors:
-            x = u.est_out_neighbors[user]
+        for u in self.userList:
+            x = self.matrix[u.id, user.id]
             if u.action_list[time - 1] == user.action:
                 x = x + (math.exp(x - 1) - self.beta) * self.beta
             else:
                 x = x - (math.exp(-x) - self.beta) * self.beta
-            # print(x)
             if x > 1.0:
                 x = 1.0
             elif x < 0.0:
                 x = 0.0
-            u.est_out_neighbors[user] = x
-            user.est_in_neighbors[u] = x
+            self.matrix[u.id, user.id] = x
+        # for u in self.pre_active_users:
+        #     if u not in user.est_in_neighbors:
+        #         user.est_in_neighbors[u] = 0.0
+        #         u.est_out_neighbors[user] = 0.0
+        # for u in user.est_in_neighbors:
+        #     x = u.est_out_neighbors[user]
+        #     if u.action_list[time - 1] == user.action:
+        #         x = x + (math.exp(x - 1) - self.beta) * self.beta
+        #     else:
+        #         x = x - (math.exp(-x) - self.beta) * self.beta
+        #     # print(x)
+        #     if x > 1.0:
+        #         x = 1.0
+        #     elif x < 0.0:
+        #         x = 0.0
+        #     u.est_out_neighbors[user] = x
+        #     user.est_in_neighbors[u] = x
 
     def update_probability(self, user):
         if user.action == 0:
@@ -110,13 +122,18 @@ class IPE(Approach):
 
 
 if __name__ == "__main__":
-    io = FileIO()
+    io = FileIO('fb')
     io.import_user_data()
     userlist = io.userList
     start = datetime.datetime.now()
     ipe = IPE(10000, 10, userlist)
-    ipe.simulate()
+    print(ipe.matrix)
+    b = np.arange(12).reshape(3, 4)
+    print(b)
+    c = b.sum(axis=1)
+    print(c[0])
+    # ipe.simulate()
     end = datetime.datetime.now()
     print("time: " + str((end - start).seconds) + "s")
     print(len(ipe.status))
-    plot.draw_plot(ipe.status)
+    # plot.draw_plot(ipe.status)
