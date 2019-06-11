@@ -26,7 +26,21 @@ class DGIA(IPE):
                 s += self.check_action(user.action)
             # p.close()
             # p.join()
+            self.calculate_influence()
+            # print(s)
             self.status_last_time = s / len(self.userList)
             self.status.append(self.status_last_time)
             end = time.time()
             print(str(end - start) + "s")
+
+    def calculate_influence(self):
+        list = {}
+        a = []
+        sum = self.matrix.sum(axis=1)
+        for user in self.userList:
+            user.total = user.probability
+            list[user] = user.total
+        a = sorted(list.items(), key=lambda x: x[1], reverse=True)
+        for x in a:
+            list[x[0]] = x[0]
+        self.userList = list

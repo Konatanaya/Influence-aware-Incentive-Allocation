@@ -112,13 +112,15 @@ class IPE(Approach):
 
     def calculate_reward(self, user):
         a = user.utility_difference ** self.status_last_time
-        # print(str(user.utility_difference)+" "+str(self.status_last_time))
         b = user.idegree ** self.status_last_time
         reward = (1 - user.probability) * (a + b)
+
         # print(str(a)+" "+str(b)+" "+str(reward))
         if reward > self.budget:
             reward = self.budget
         user.reward = reward
+        # print(str(user.id)+":"+str(user.reward)+":"+str(user.utility_difference)+":"+str(self.status_last_time))
+        # print(str(user.id)+":"+str(user.reward))
 
 
 if __name__ == "__main__":

@@ -8,10 +8,11 @@ class FileIO:
         self.num = 2
         self.add_net = '../data/' + name + '_network.txt'
         self.add_user = '../data/' + name + '_user.txt'
+        self.net = '../data/'+ name + '.txt'
 
     def import_data(self):
         try:
-            file = open(self.add_net, 'r')
+            file = open(self.net, 'r')
             for line in file:
                 arr = line.strip('\n').split()
                 u1 = UserAgent.UserAgent(int(arr[0]))
@@ -37,7 +38,7 @@ class FileIO:
 
     def export_data(self):
         l = list(self.userList.values())
-        l.sort(key=lambda x: int(x.id), reverse=False)
+        # l.sort(key=lambda x: int(x.id), reverse=False)
         try:
             file = open(self.add_user, 'w')
             file1 = open(self.add_net, 'w')
